@@ -787,10 +787,11 @@
         <div id="questionList" class="question-list"></div>
 
         <div class="actions-bottom">
-          <div class="hint" id="testHint">牌还没摸完。先把题做完整，不然系统都不好意思判断你到底菜在哪。</div>
+          <div class="hint" id="testHint">先看这一题。选完就往下摸，随时也能回头改。</div>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <button id="backIntroBtn" class="btn-secondary">返回首页</button>
-            <button id="submitBtn" class="btn-primary" disabled>开结果</button>
+            <button id="prevQuestionBtn" class="btn-secondary">上一题</button>
+            <button id="submitBtn" class="btn-primary" disabled>下一题</button>
           </div>
         </div>
       </div>
@@ -1381,6 +1382,7 @@
 
     const app = {
       shuffledQuestions: [],
+      currentQuestionIndex: 0,
       answers: {},
       bonusAnswers: {},
       bonusResult: null
@@ -1397,6 +1399,7 @@
     const progressBar = document.getElementById("progressBar");
     const progressText = document.getElementById("progressText");
     const submitBtn = document.getElementById("submitBtn");
+    const prevQuestionBtn = document.getElementById("prevQuestionBtn");
     const testHint = document.getElementById("testHint");
     const bonusList = document.getElementById("bonusList");
     const bonusProgressBar = document.getElementById("bonusProgressBar");
@@ -1496,50 +1499,60 @@
     }
 
     function renderQuestions() {
-      const visibleQuestions = [...app.shuffledQuestions];
       questionList.innerHTML = "";
+      const total = app.shuffledQuestions.length;
+      const currentIndex = app.currentQuestionIndex || 0;
+      const q = app.shuffledQuestions[currentIndex];
+      if (!q) {
+        updateProgress();
+        return;
+      }
 
-      visibleQuestions.forEach((q, index) => {
-        const card = document.createElement("article");
-        card.className = "question";
-        card.innerHTML = `
-          <div class="question-meta">
-            <div class="badge">第 ${index + 1} 题</div>
+      const card = document.createElement("article");
+      card.className = "question";
+      card.innerHTML = `
+        <div class="question-meta">
+          <div class="badge">第 ${currentIndex + 1} 题</div>
+        </div>
+        ${q.scene ? `<div class="bonus-scene">${q.scene}</div>` : ""}
+        ${q.hand ? `
+          <div class="tile-row">
+            ${q.hand.map(tile => renderTile(tile)).join("")}
+            <div class="tile-gap"></div>
+            ${renderTile(q.draw, "draw")}
           </div>
-          ${q.scene ? `<div class="bonus-scene">${q.scene}</div>` : ""}
-          ${q.hand ? `
-            <div class="tile-row">
-              ${q.hand.map(tile => renderTile(tile)).join("")}
-              <div class="tile-gap"></div>
-              ${renderTile(q.draw, "draw")}
-            </div>
-          ` : ""}
-          <div class="question-title">${q.text}</div>
-          <div class="options">
-            ${q.options.map((opt, i) => {
-              const code = ["A", "B", "C", "D"][i] || String(i + 1);
-              const checked = app.answers[q.id] === opt.value ? "checked" : "";
-              return `
-                <label class="option">
-                  <input type="radio" name="${q.id}" value="${opt.value}" ${checked} />
-                  <div class="option-code">${code}</div>
-                  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                    ${opt.tile ? renderTile(opt.tile) : ""}
-                    ${opt.label ? `<div>${opt.label}</div>` : ""}
-                  </div>
-                </label>
-              `;
-            }).join("")}
-          </div>
-        `;
-        questionList.appendChild(card);
-      });
+        ` : ""}
+        <div class="question-title">${q.text}</div>
+        <div class="options">
+          ${q.options.map((opt, i) => {
+            const code = ["A", "B", "C", "D"][i] || String(i + 1);
+            const checked = app.answers[q.id] === opt.value ? "checked" : "";
+            return `
+              <label class="option">
+                <input type="radio" name="${q.id}" value="${opt.value}" ${checked} />
+                <div class="option-code">${code}</div>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                  ${opt.tile ? renderTile(opt.tile) : ""}
+                  ${opt.label ? `<div>${opt.label}</div>` : ""}
+                </div>
+              </label>
+            `;
+          }).join("")}
+        </div>
+      `;
+      questionList.appendChild(card);
 
       questionList.querySelectorAll('input[type="radio"]').forEach(input => {
         input.addEventListener("change", (e) => {
           const { name, value } = e.target;
           app.answers[name] = Number(value);
           updateProgress();
+          if (app.currentQuestionIndex < total - 1) {
+            window.setTimeout(() => {
+              app.currentQuestionIndex += 1;
+              renderQuestions();
+            }, 120);
+          }
         });
       });
 
@@ -1588,14 +1601,22 @@
     function updateProgress() {
       const total = app.shuffledQuestions.length;
       const done = app.shuffledQuestions.filter(q => app.answers[q.id] !== undefined).length;
-      const percent = total ? (done / total) * 100 : 0;
+      const current = Math.min((app.currentQuestionIndex || 0) + 1, total || 0);
+      const percent = total ? (current / total) * 100 : 0;
       progressBar.style.width = `${percent}%`;
-      progressText.textContent = `${done} / ${total}`;
+      progressText.textContent = `${current} / ${total}`;
       const complete = done === total && total > 0;
-      submitBtn.disabled = !complete;
+      const currentQuestion = app.shuffledQuestions[app.currentQuestionIndex || 0];
+      const currentAnswered = currentQuestion ? app.answers[currentQuestion.id] !== undefined : false;
+      const isLast = (app.currentQuestionIndex || 0) === total - 1;
+      prevQuestionBtn.disabled = (app.currentQuestionIndex || 0) === 0;
+      submitBtn.disabled = isLast ? !complete : !currentAnswered;
+      submitBtn.textContent = isLast ? "开结果" : "下一题";
       testHint.textContent = complete
-        ? "都答完了，系统正在搓麻将版人格判词。"
-        : "先答完再开结果，不然系统只能判你“未听牌”。";
+        ? "都答完了，可以开结果了。"
+        : currentAnswered
+          ? "这题已落子，继续往下摸。"
+          : "先选一个最像你的反应，再继续往下摸。";
     }
 
     function updateBonusProgress() {
@@ -1897,6 +1918,7 @@
       app.bonusAnswers = {};
       app.bonusResult = null;
       app.shuffledQuestions = shuffle(questions);
+      app.currentQuestionIndex = 0;
       renderQuestions();
       showScreen("test");
     }
@@ -1914,7 +1936,21 @@
 
     document.getElementById("startBtn").addEventListener("click", startTest);
     document.getElementById("backIntroBtn").addEventListener("click", () => showScreen("intro"));
-    document.getElementById("submitBtn").addEventListener("click", renderResult);
+    document.getElementById("submitBtn").addEventListener("click", () => {
+      const total = app.shuffledQuestions.length;
+      const isLast = (app.currentQuestionIndex || 0) === total - 1;
+      if (isLast) {
+        renderResult();
+        return;
+      }
+      app.currentQuestionIndex += 1;
+      renderQuestions();
+    });
+    prevQuestionBtn.addEventListener("click", () => {
+      if ((app.currentQuestionIndex || 0) === 0) return;
+      app.currentQuestionIndex -= 1;
+      renderQuestions();
+    });
     document.getElementById("restartBtn").addEventListener("click", startTest);
     document.getElementById("toTopBtn").addEventListener("click", () => showScreen("intro"));
     document.getElementById("startBonusBtn").addEventListener("click", startBonus);
