@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>日麻人格角色总览</title>
+  <style>
+    :root {
+      --bg: #f4f1e7;
+      --panel: #fffdf7;
+      --text: #1f241c;
+      --muted: #66705f;
+      --line: #d7d1bf;
+      --accent: #2f6b47;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #f7f4eb 0%, #f1eee4 100%);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    h1, p { margin: 0; }
+    h1 {
+      font-size: clamp(28px, 5vw, 46px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+    .sub {
+      margin-top: 12px;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 760px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 28px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 18px 32px rgba(49, 62, 39, 0.08);
+    }
+    .art {
+      width: 100%;
+      max-width: 220px;
+      margin: 0 auto 10px;
+    }
+    .persona-art-img {
+      display: block;
+      width: 220px;
+      max-width: 100%;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      margin: 0 auto;
+      border-radius: 20px;
+      box-shadow: 0 10px 22px rgba(49, 62, 39, 0.12);
+      border: 1px solid rgba(215, 209, 191, 0.8);
+      background-color: #fff;
+    }
+
+    .persona-abstract {
+      width: 220px;
+      max-width: 100%;
+      aspect-ratio: 2 / 3;
+      margin: 0 auto;
+      border-radius: 20px;
+      border: 1px solid rgba(215, 209, 191, 0.8);
+      box-shadow: 0 10px 22px rgba(49, 62, 39, 0.12);
+      background:
+        radial-gradient(circle at 22% 18%, rgba(255,255,255,0.7), transparent 18%),
+        linear-gradient(135deg, #eef1fb 0%, #f7f1fb 48%, #eef5ef 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .persona-abstract::before,
+    .persona-abstract::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+
+    .persona-abstract::before {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0.12));
+    }
+
+    .persona-abstract::after {
+      background:
+        radial-gradient(circle at 72% 22%, rgba(120, 98, 172, 0.18), transparent 16%),
+        radial-gradient(circle at 30% 74%, rgba(71, 125, 150, 0.14), transparent 18%),
+        radial-gradient(circle at 76% 72%, rgba(195, 172, 98, 0.15), transparent 14%);
+    }
+
+    .persona-abstract-core {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #4f4a73;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      z-index: 3;
+    }
+
+    .persona-abstract-symbol {
+      display: inline-block;
+      font-size: 82px;
+      line-height: 1;
+      opacity: 0.9;
+      color: rgba(77, 71, 107, 0.92);
+      text-shadow:
+        0 2px 0 rgba(255,255,255,0.52),
+        0 10px 22px rgba(86, 82, 126, 0.14);
+    }
+
+    .persona-abstract-bits {
+      position: absolute;
+      inset: 10px;
+      color: rgba(95, 91, 130, 0.2);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px 8px;
+      align-content: center;
+      justify-items: center;
+      z-index: 1;
+      transform: rotate(-8deg) scale(1.05);
+    }
+
+    .persona-abstract-bits span {
+      font-size: 22px;
+      line-height: 1;
+      filter: saturate(0.8);
+    }
+
+    .code {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 800;
+      letter-spacing: .06em;
+    }
+    .name {
+      font-size: 22px;
+      margin-top: 4px;
+      line-height: 1.2;
+    }
+    .intro {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>日麻人格角色总览</h1>
+    <p class="sub">这里直接使用你生成的那张角色卡总图，当前网页里的主人格海报位也会沿用这套视觉。哪张需要再微调，我们就针对那一张继续改。</p>
+    <div id="grid" class="grid"></div>
+  </div>
+
+  <script>
+    const types = [
+      { code: "SCI-MJ", cn: "科学麻将家", intro: "谁说科学麻将死路一条！", src: "assets/personas/sci-mj.jpg" },
+      { code: "MAGINOT", cn: "马奇诺", intro: "你可以不胡，但别想我放铳。", src: "assets/personas/maginot.jpg" },
+      { code: "YAKUMAN", cn: "役满梦想家", intro: "小胡解决温饱，大胡改变命运。", src: "assets/personas/yakuman.jpg" },
+      { code: "IRONHEAD", cn: "头铁战神", intro: "都到这了，不冲还是人？", src: "assets/personas/ironhead.jpg" },
+      { code: "MINDGAME", cn: "心战怪", intro: "你以为她在发呆，其实她在等你先死。", src: "assets/personas/mindgame.jpg" },
+      { code: "VIBE", cn: "牌桌氛围组", intro: "牌可以乱打，场子不能冷掉。", src: "assets/personas/vibe.jpg" },
+      { code: "STERN", cn: "统计学圣体", intro: "明年去不去 NYU Stern 读统计博士？", src: "assets/personas/stern.jpg" },
+      { code: "BODHI", cn: "菩萨", intro: "输赢随缘，别急别气。", src: "assets/personas/bodhi.jpg" },
+      { code: "GAMBLER", cn: "赌狗", intro: "再摸一张，包来的。", src: "assets/personas/gambler.jpg" },
+      { code: "MIXR", cn: "缝合怪", intro: "你不是一种流派，你是好几种流派轮流上身。", src: "assets/personas/mixr.jpg" },
+      { code: "MYSTIC", cn: "玄学大师", intro: "牌效不够，天意来凑。", src: "assets/personas/mystic.jpg" }
+    ];
+
+    document.getElementById("grid").innerHTML = types.map(type => `
+      <article class="card">
+        <div class="art">
+          ${type.code === "MIXR"
+            ? `<div class="persona-abstract" aria-label="缝合怪抽象角色卡">
+                <div class="persona-abstract-bits">
+                  <span>🀜</span><span>🀏</span><span>🀘</span><span>🀂</span><span>🀇</span>
+                  <span>🀡</span><span>🀕</span><span>🀄</span><span>🀋</span><span>🀚</span>
+                  <span>🀑</span><span>🀆</span><span>🀍</span><span>🀃</span><span>🀞</span>
+                  <span>🀔</span><span>🀉</span><span>🀒</span><span>🀙</span><span>🀅</span>
+                </div>
+                <div class="persona-abstract-core">
+                  <div class="persona-abstract-symbol">?</div>
+                </div>
+              </div>`
+            : `<img class="persona-art-img" src="${type.src}" alt="${type.cn} 角色图" />`
+          }
+        </div>
+        <div class="code">${type.code}</div>
+        <div class="name">${type.cn}</div>
+        <div class="intro">${type.intro}</div>
+      </article>
+    `).join("");
+  </script>
+</body>
+</html>

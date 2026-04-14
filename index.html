@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MJTI 日麻人格测试</title>
+  <meta name="description" content="MJTI 日麻人格测试：测测你在牌桌上到底是科学麻将家、役满梦想家、头铁战神，还是玄学大师。" />
+  <meta property="og:title" content="MJTI 日麻人格测试" />
+  <meta property="og:description" content="测测你的日麻人格，再挑战摸切附加题，看看你是何切之神还是慈善赌王。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/personas/test_crop.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <style>
+    :root {
+      --bg: #f4f1e7;
+      --panel: #fffdf7;
+      --text: #1f241c;
+      --muted: #66705f;
+      --line: #d7d1bf;
+      --soft: #eef2e4;
+      --accent: #2f6b47;
+      --accent-strong: #1f4a31;
+      --gold: #b48a3c;
+      --shadow: 0 18px 40px rgba(49, 62, 39, 0.1);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(180,138,60,0.09), transparent 24%),
+        linear-gradient(180deg, #f7f4eb 0%, #f1eee4 100%);
+    }
+
+    .shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 14px 48px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .hero {
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -48px;
+      top: -48px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(47,107,71,0.14), rgba(47,107,71,0.02));
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    .hero h1 {
+      margin-top: 16px;
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      max-width: 700px;
+    }
+
+    .sub {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+      max-width: 760px;
+    }
+
+    .mini-panel {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffef9, #f4f5ec);
+      margin-top: 24px;
+    }
+
+    .mini-panel h3 {
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .mini-panel ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      transition: transform .16s ease, opacity .16s ease, box-shadow .16s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
+
+    .btn-primary {
+      padding: 14px 20px;
+      border-radius: 14px;
+      background: var(--accent-strong);
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 12px 26px rgba(31, 74, 49, 0.18);
+    }
+
+    .btn-secondary {
+      padding: 14px 20px;
+      border-radius: 14px;
+      background: #fff;
+      color: var(--accent-strong);
+      border: 1px solid var(--line);
+      font-weight: 800;
+    }
+
+    .test-wrap, .result-wrap {
+      margin-top: 20px;
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .progress {
+      flex: 1;
+      min-width: 220px;
+      height: 10px;
+      background: #ebe7d8;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ceb05f, #2f6b47);
+      transition: width .22s ease;
+    }
+
+    .progress-text {
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fcfbf6);
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .question-title {
+      font-size: 16px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      transition: border-color .16s ease, background .16s ease;
+    }
+
+    .option:hover {
+      border-color: #c6bb95;
+      background: #fffeef;
+    }
+
+    .option input {
+      margin-top: 3px;
+      accent-color: var(--accent-strong);
+      flex-shrink: 0;
+    }
+
+    .option-code {
+      min-width: 22px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .actions-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .result-layout {
+      display: grid;
+      gap: 18px;
+    }
+
+    .result-top {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 18px;
+    }
+
+    .type-box, .analysis-box, .dim-box, .top-box, .note-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #faf9f2);
+    }
+
+    .poster-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(47,107,71,0.14), rgba(47,107,71,0.01) 40%),
+        linear-gradient(180deg, #fffef9, #f3f1e8);
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .poster-kicker {
+      color: var(--accent-strong);
+      font-size: 12px;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    .poster-glyph {
+      font-size: clamp(60px, 10vw, 110px);
+      line-height: 1;
+    }
+
+    .poster-art {
+      width: min(100%, 260px);
+      margin: 0 auto;
+    }
+
+    .poster-art.dual {
+      width: min(100%, 360px);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      align-items: start;
+    }
+
+    .poster-art svg,
+    .poster-art img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .persona-art-img {
+      display: block;
+      width: 220px;
+      max-width: 100%;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      margin: 0 auto;
+      border-radius: 20px;
+      box-shadow: 0 10px 22px rgba(49, 62, 39, 0.12);
+      border: 1px solid rgba(215, 209, 191, 0.8);
+      background-color: #fff;
+    }
+
+    .poster-art.dual .persona-art-img,
+    .poster-art.dual .persona-abstract {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .persona-abstract {
+      width: 220px;
+      max-width: 100%;
+      aspect-ratio: 2 / 3;
+      margin: 0 auto;
+      border-radius: 20px;
+      border: 1px solid rgba(215, 209, 191, 0.8);
+      box-shadow: 0 10px 22px rgba(49, 62, 39, 0.12);
+      background:
+        radial-gradient(circle at 22% 18%, rgba(255,255,255,0.7), transparent 18%),
+        linear-gradient(135deg, #eef1fb 0%, #f7f1fb 48%, #eef5ef 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .persona-abstract::before,
+    .persona-abstract::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+
+    .persona-abstract::before {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0.12));
+    }
+
+    .persona-abstract::after {
+      background:
+        radial-gradient(circle at 72% 22%, rgba(120, 98, 172, 0.18), transparent 16%),
+        radial-gradient(circle at 30% 74%, rgba(71, 125, 150, 0.14), transparent 18%),
+        radial-gradient(circle at 76% 72%, rgba(195, 172, 98, 0.15), transparent 14%);
+    }
+
+    .persona-abstract-core {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #4f4a73;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      z-index: 3;
+    }
+
+    .persona-abstract-symbol {
+      display: inline-block;
+      font-size: 82px;
+      line-height: 1;
+      opacity: 0.9;
+      color: rgba(77, 71, 107, 0.92);
+      text-shadow:
+        0 2px 0 rgba(255,255,255,0.52),
+        0 10px 22px rgba(86, 82, 126, 0.14);
+    }
+
+    .persona-abstract-bits {
+      position: absolute;
+      inset: 10px;
+      color: rgba(95, 91, 130, 0.2);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px 8px;
+      align-content: center;
+      justify-items: center;
+      z-index: 1;
+      transform: rotate(-8deg) scale(1.05);
+    }
+
+    .persona-abstract-bits span {
+      font-size: 22px;
+      line-height: 1;
+      filter: saturate(0.8);
+    }
+
+    .poster-caption {
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .type-kicker {
+      color: var(--accent-strong);
+      font-size: 12px;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+
+    .type-name {
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .type-subname {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .match {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 18px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--accent-strong);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .analysis-box p, .note-box p {
+      color: #334032;
+      font-size: 15px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+      margin: 0;
+    }
+
+    .dim-box h3,
+    .top-box h3 {
+      margin-bottom: 12px;
+    }
+
+    .radar-wrap {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fffef9, #f7f5ed);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .radar-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .radar-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 240px;
+      margin: 0 auto;
+    }
+
+    .dim-list, .top-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .dim-item, .top-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .dim-item-top, .top-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .dim-item-name, .top-item strong {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .dim-item-score, .top-score {
+      color: var(--accent-strong);
+      font-weight: 800;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .dim-item p, .top-item span {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .result-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .bonus-box, .bonus-result-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #fffef9, #faf7ef);
+    }
+
+    .bonus-box p, .bonus-result-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .bonus-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: #f6f0dd;
+      border: 1px solid #dbcfa8;
+      color: #75561a;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .bonus-result-box {
+      display: none;
+    }
+
+    .bonus-result-box.active {
+      display: block;
+    }
+
+    .bonus-result-title {
+      font-size: 24px;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .bonus-result-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .bonus-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .bonus-combo {
+      margin-top: 8px;
+      color: #334032;
+      font-size: 15px;
+      line-height: 1.9;
+    }
+
+    .bonus-wrap {
+      margin-top: 20px;
+      padding: 22px;
+    }
+
+    .bonus-list {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .bonus-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfaf3);
+    }
+
+    .bonus-scene {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+      margin-bottom: 12px;
+    }
+
+    .tile-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: flex-end;
+      margin: 10px 0 6px;
+    }
+
+    .tile-gap {
+      width: 14px;
+      height: 1px;
+    }
+
+    .mahjong-tile {
+      width: 42px;
+      height: 58px;
+      border-radius: 10px;
+      border: 1px solid #cfc7b4;
+      background: linear-gradient(180deg, #fffefc, #f3f0e7);
+      box-shadow: 0 4px 10px rgba(48, 42, 28, 0.08);
+      display: grid;
+      place-items: center;
+      padding: 6px 4px;
+      position: relative;
+    }
+
+    .mahjong-tile.draw {
+      transform: translateY(-6px);
+      border-color: #c9b26b;
+      box-shadow: 0 8px 18px rgba(180, 138, 60, 0.18);
+    }
+
+    .mahjong-face {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .mahjong-glyph {
+      font-size: 31px;
+      line-height: 1;
+      filter: saturate(1.02);
+    }
+
+    .mahjong-red-dot {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #c54a34;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.9);
+    }
+
+    .bonus-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .bonus-option {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (max-width: 860px) {
+      .hero-grid, .result-top { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .shell { padding: 12px 10px 36px; }
+      .hero, .test-wrap, .result-wrap { padding: 16px; }
+      .hero h1 { font-size: 32px; }
+      .question-title { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section id="intro" class="screen active">
+      <div class="card hero">
+        <div class="eyebrow">MJTI 日麻人格测试</div>
+        <h1>比你会不会和牌更重要的，是你到底怎么打牌。</h1>
+        <p class="sub">
+          这是一份娱乐向的 MJTI 日麻人格测试。它不看你段位，不查你牌谱，只试图回答一个问题：
+          你在牌桌上，到底是速攻野狗、铁壁防守人、役满妄想家，还是那种嘴上说随便打打、手里已经开始算三巡后的老阴比？
+        </p>
+
+        <div class="mini-panel">
+          <h3>友情提示</h3>
+          <ul>
+            <li>它不保证提升胜率，但会认真分析你在牌桌上的路数。</li>
+            <li>结果仅供娱乐，不建议拿去决定谁坐庄谁洗牌。</li>
+            <li>打麻将最重要的还是别上头，第二重要的是别嘴硬。</li>
+          </ul>
+        </div>
+
+        <div class="hero-actions">
+          <button id="startBtn" class="btn-primary">开始摸牌</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="test" class="screen">
+      <div class="test-wrap card">
+        <div class="topbar">
+          <div class="progress"><span id="progressBar"></span></div>
+          <div class="progress-text" id="progressText">0 / 27</div>
+        </div>
+
+        <div id="questionList" class="question-list"></div>
+
+        <div class="actions-bottom">
+          <div class="hint" id="testHint">牌还没摸完。先把题做完整，不然系统都不好意思判断你到底菜在哪。</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="backIntroBtn" class="btn-secondary">返回首页</button>
+            <button id="submitBtn" class="btn-primary" disabled>开结果</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="result" class="screen">
+      <div class="result-wrap card">
+        <div class="result-layout">
+          <div class="result-top">
+            <div class="poster-box">
+              <div class="poster-kicker">你的牌桌气场</div>
+              <div class="poster-art" id="posterArt"></div>
+              <div class="poster-caption" id="posterCaption">这一局的牌风备注会显示在这里。</div>
+            </div>
+
+            <div class="type-box">
+              <div class="type-kicker" id="resultModeKicker">你的主类型</div>
+              <div class="type-name" id="resultTypeName">RUSH（速攻流）</div>
+              <div class="match" id="matchBadge">匹配度 88%</div>
+              <div class="type-subname" id="resultTypeSub">系统备注会显示在这里。</div>
+            </div>
+          </div>
+
+          <div id="bonusCtaBox" class="bonus-box">
+            <div class="bonus-kicker">摸切附加题</div>
+            <p>这部分不影响你的主人格，只看你的牌理命中率。全对可获得隐藏称号：<strong>何切之神</strong>。</p>
+            <div class="hero-actions" style="margin-top:14px;">
+              <button id="startBonusBtn" class="btn-primary">挑战附加题</button>
+            </div>
+          </div>
+
+          <div id="bonusResultBox" class="bonus-result-box">
+            <div class="bonus-kicker">附加题结果</div>
+            <div class="bonus-result-title" id="bonusTitle">何切之神</div>
+          <div class="bonus-result-meta">
+              <div class="bonus-pill" id="bonusAccuracy">牌理命中率 100%</div>
+              <div class="bonus-pill" id="bonusScore">6 / 6</div>
+            </div>
+            <p id="bonusDesc">这里会显示附加称号说明。</p>
+            <div class="bonus-combo" id="comboDesc">这里会显示主人格和附加称号的组合判词。</div>
+            <div class="hero-actions" style="margin-top:14px;">
+              <button id="retryBonusBtn" class="btn-secondary">重做附加题</button>
+            </div>
+          </div>
+
+          <div class="analysis-box">
+            <h3>人格解读</h3>
+            <p id="resultDesc"></p>
+          </div>
+
+          <div class="top-box">
+            <h3>最接近的三种牌风</h3>
+            <div id="topList" class="top-list"></div>
+          </div>
+
+          <div class="dim-box">
+            <h3>九维度拆解</h3>
+            <div class="radar-wrap">
+              <div class="radar-meta">这是你这次的九维轮廓。哪一边更鼓，哪一边就更像你的默认牌风。</div>
+              <div id="radarChart"></div>
+            </div>
+            <div id="dimList" class="dim-list"></div>
+          </div>
+
+          <div class="note-box">
+            <h3>友情提示</h3>
+            <p id="funNote">本测试仅供娱乐，别拿它代替牌谱复盘、上桌决策或人生重大判断。</p>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="restartBtn" class="btn-secondary">重新测试</button>
+            <button id="toTopBtn" class="btn-primary">回到首页</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="bonus" class="screen">
+      <div class="bonus-wrap card">
+        <div class="topbar">
+          <div class="progress"><span id="bonusProgressBar"></span></div>
+          <div class="progress-text" id="bonusProgressText">0 / 6</div>
+        </div>
+        <div class="mini-panel" style="margin-top:0;">
+          <h3>摸切附加题</h3>
+          <ul>
+            <li>这部分不影响主人格，只看你的牌理命中率。</li>
+            <li>全对可获得隐藏称号：何切之神。</li>
+          </ul>
+        </div>
+        <div id="bonusList" class="bonus-list"></div>
+        <div class="actions-bottom">
+          <div class="hint" id="bonusHint">先把这几道摸切题做完，再看你到底是院士还是在做慈善。</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="backResultBtn" class="btn-secondary">返回主结果</button>
+            <button id="submitBonusBtn" class="btn-primary" disabled>查看附加结果</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const dimensionMeta = {
+      EFF: { name: "EFF 牌效改良倾向" },
+      DEF: { name: "DEF 控损守备倾向" },
+      PRESSURE: { name: "PRESSURE 顶压倾向" },
+      AMBITION: { name: "AMBITION 打点野心" },
+      READ: { name: "READ 读场敏感度" },
+      CALC: { name: "CALC 全局算账倾向" },
+      TILT: { name: "TILT 情绪恢复速度" },
+      VIBE: { name: "VIBE 牌桌氛围参与度" },
+      HOPE: { name: "HOPE 侥幸续命倾向" }
+    };
+
+    const questions = [
+      {
+        id: "q1", dim: "AMBITION",
+        text: "你这手已经明显在往万一色走，结果这巡偏偏摸进一张筒子两面搭子，顺手就能听牌。你会怎么想？",
+        options: [
+          { label: "先听，能收先收，别为了染手把自己演进去", value: 1 },
+          { label: "先算这口万一色到底值不值我把现成听牌拆了", value: 2 },
+          { label: "拆了继续染，这手不做成万一色我今晚都睡不服", value: 3 }
+        ]
+      },
+      {
+        id: "q2", dim: "CALC",
+        text: "南三局你暂时二位，离一位还差 6400。这手现在已经有一条能尽快和牌的路线，收下大概率是守住二位；如果继续养牌，才有机会摸到逆转线。你会怎么想？",
+        options: [
+          { label: "先把二位坐稳，别把现成顺位养飞了", value: 1 },
+          { label: "先算这局保二更赚，还是搏一更赚", value: 3 },
+          { label: "我会给逆转线一巡预算，摸不到就收手", value: 2 }
+        ]
+      },
+      {
+        id: "q3", dim: "DEF",
+        text: "对家立直，你自己是一向听，手里这手就算硬顶成功也只是个普通小和。你通常会？",
+        options: [
+          { label: "直接下车，没必要为了这点牌值送命", value: 1 },
+          { label: "能先过一轮安全巡就先过，别急着把命交出去", value: 1 },
+          { label: "先看现物、点差和剩余巡目，再决定退多彻底", value: 2 },
+          { label: "先顶一张看看，退可以，但别退得太早", value: 3 }
+        ]
+      },
+      {
+        id: "q4", dim: "PRESSURE",
+        text: "南四局你离上家只差 2000，但这手牌又臭又危险。你更像下面哪一种？",
+        options: [
+          { label: "先别点炮，2000 不值得拿命换", value: 1 },
+          { label: "先看这 2000 是真有机会追，还是只是诱饵", value: 2 },
+          { label: "如果牌河还没烂穿，我会顶一张看看自己有没有脸", value: 3 },
+          { label: "都南四了，臭也得硬着头皮往前推", value: 3 }
+        ]
+      },
+      {
+        id: "q5", dim: "READ",
+        text: "牌局打到中盘，一家副露变快，一家切牌开始犹豫，另一家牌河也越来越别扭。你第一反应通常是？",
+        options: [
+          { label: "先把自己这手打明白，别急着给全桌写人物小传", value: 1 },
+          { label: "我会先盯住最扎眼的那个信号，但暂时不大改打法", value: 2 },
+          { label: "我会先判断哪家已经从普通玩家升级成危险人物", value: 2 },
+          { label: "这种局面对我来说已经够重新排一轮桌上优先级了", value: 3 }
+        ]
+      },
+      {
+        id: "q6", dim: "TILT",
+        text: "你刚被一发抬走，下一巡摸牌时，内心状态更接近下面哪句？",
+        options: [
+          { label: "有点红了，CPU 正在降频", value: 1 },
+          { label: "烦是烦，但还能维持人形", value: 2 },
+          { label: "上一手已经火化了，别影响下一手", value: 3 }
+        ]
+      },
+      {
+        id: "q7", dim: "TILT",
+        text: "每局摸牌前，你更像会做哪种准备？",
+        options: [
+          { label: "先把上一局那口气放下，别带着情绪开新局", value: 3 },
+          { label: "先看顺位和桌况，想想这局到底该保还是该冲", value: 2 },
+          { label: "先确认一下周遭幸运物还在，再喝一口自己的幸运饮料", value: 1, mystic: 1, mysticLock: 1 }
+        ]
+      },
+      {
+        id: "q8", dim: "VIBE",
+        text: "朋友打出一手逆天操作，全桌突然安静两秒。一般来说，你会负责哪个岗位？",
+        options: [
+          { label: "沉默旁观，但心里已经打完一千字弹幕", value: 1 },
+          { label: "先和熟人对个眼神，把笑憋到这局结束", value: 1 },
+          { label: "轻轻提醒一句，给人留点体面和退路", value: 2 },
+          { label: "直接接管解说席：'我们回放一下这波犯罪过程'", value: 3 }
+        ]
+      },
+      {
+        id: "q9", dim: "AMBITION",
+        text: "你这手本来还能往门清高打点走，但现在一吃就能明显提速，只是牌会瞬间从“有前途”变成“先糊口”。这时候你通常会？",
+        options: [
+          { label: "吃，先把速度抢到手再说", value: 1 },
+          { label: "先想清楚这口速度，是救命还是单纯把牌打穷", value: 2 },
+          { label: "如果吃完只剩温饱，我宁可再让牌自己长一轮", value: 1 },
+          { label: "先不吃，这手还没穷到只能混一口饭", value: 3 }
+        ]
+      },
+      {
+        id: "q10", dim: "EFF",
+        text: "你看见别人明明有更顺的牌路，却切了个略显亏本的牌。你最真实的反应通常是？",
+        options: [
+          { label: "无所谓，开心就好，别把牌桌搞成高考考场", value: 1 },
+          { label: "会觉得可惜，但也懒得管", value: 2 },
+          { label: "我脑子里已经帮他重打三巡了", value: 3 }
+        ]
+      },
+      {
+        id: "q12", dim: "AMBITION",
+        text: "四麻开局九种九牌，你面对“是否流局重开”时最像哪种人？",
+        options: [
+          { label: "重开吧，国士这种事留给别人做梦", value: 1 },
+          { label: "先看这桌的局况值不值得让我为国士交学费", value: 2 },
+          { label: "如果只是刚好有点国士味，我会先再看一眼自己是不是上头了", value: 2 },
+          { label: "追国士，今天不整点传奇都对不起这副牌", value: 3 }
+        ]
+      },
+      {
+        id: "q13", dim: "PRESSURE",
+        text: "上一手刚受完气，下一手一摸牌，你更像下面哪种状态？",
+        options: [
+          { label: "报仇模式已加载，今天必须有人付出代价", value: 3 },
+          { label: "这口气还在，但我知道不能拿下一手报复", value: 2 },
+          { label: "关上一手啥事，继续把这手打好", value: 1 }
+        ]
+      },
+      {
+        id: "q14", dim: "VIBE",
+        text: "如果把你这桌牌拍成综艺，你在片尾字幕里更像哪个职位？",
+        options: [
+          { label: "安静执行位，活干完就退场", value: 1 },
+          { label: "普通常驻嘉宾，轮到我说话时我会接住", value: 2 },
+          { label: "气氛总导演兼临时解说，场子不能冷", value: 3 }
+        ]
+      },
+      {
+        id: "q16", dim: "VIBE",
+        text: "四个人都不算特别熟，气氛有点干。通常这种桌上，你更像哪一种人？",
+        options: [
+          { label: "我先安静打牌，没必要硬把场子撑起来", value: 1 },
+          { label: "谁抛话我就接两句，不会主动接管整桌", value: 2 },
+          { label: "看桌上缺什么：缺安静我就安静，缺气氛我就补气氛", value: 2 },
+          { label: "这种场子一般最后都会被我带热", value: 3 }
+        ]
+      },
+      {
+        id: "q15", dim: "HOPE",
+        text: "这手牌客观上已经不太像能活了，但你盯着牌山时，脑子里最像哪种声音？",
+        options: [
+          { label: "不会，我认命认得很快", value: 1, atm: 0 },
+          { label: "会想一下，但更多是自己给自己讲冷笑话", value: 2, atm: 0 },
+          { label: "如果牌山还够、点差也值，我会认真买这一张彩票", value: 3, atm: 1 },
+          { label: "会，而且我一般真会陪这个念头走到底", value: 3, atm: 2 }
+        ]
+      },
+      {
+        id: "q19", dim: "EFF",
+        text: "怎么切？",
+        scene: "东一局 7 巡目 · 东家 · 宝牌 7万",
+        hand: ["6m","7m","3p","4p","5p","5p","6p","7p","7p","7p","3s","3s","4s"],
+        draw: "2p",
+        options: [
+          { label: "", value: 1, tile: "2p" },
+          { label: "", value: 2, tile: "4s" },
+          { label: "", value: 3, tile: "5p" }
+        ]
+      },
+      {
+        id: "q20", dim: "EFF",
+        text: "你手里有一组看着挺顺眼但其实进张很窄的形，另一边则是有点丑但更宽的改良路线。你更容易偏向哪边？",
+        options: [
+          { label: "顺眼就行，别把自己算麻了", value: 1 },
+          { label: "先看这手到底缺速度还是缺质量", value: 2 },
+          { label: "宽才是王道，丑一点又不会扣学分", value: 3 }
+        ]
+      },
+      {
+        id: "q25", dim: "CALC",
+        text: "南四局你是老四，和三位差 1300。眼前这手有一条稳妥小牌路线，也有一条更冒险的路线。你更像？",
+        options: [
+          { label: "先脱四，今天先把脸保住再谈理想", value: 2 },
+          { label: "先算这把最优目标到底是脱四还是翻身", value: 3 },
+          { label: "我会直接去找更大的出口，脱四哪有翻身香", value: 1 }
+        ]
+      },
+      {
+        id: "q26", dim: "READ",
+        text: "平时最爱插科打诨的那位这局突然不接话了，摸牌也慢了半拍。你更像怎么处理这个变化？",
+        options: [
+          { label: "很多人后半场都会安静，我先不因为这个加戏", value: 1 },
+          { label: "先记一下，但还不至于立刻改打法", value: 2 },
+          { label: "我会把她暂时放进观察名单里，看后面会不会继续变", value: 2 },
+          { label: "这种节奏变化在我这儿已经够升一次警报了", value: 3 }
+        ]
+      },
+      {
+        id: "q28", dim: "HOPE",
+        text: "牌山快见底了，这手继续打下去大概率只是给自己添戏。你这时候更像？",
+        options: [
+          { label: "该放就放，强行演下去也不会加戏分", value: 1, atm: 0 },
+          { label: "先算一下代价，不让自己白演这场独角戏", value: 2, atm: 0 },
+          { label: "如果成本不高，我愿意再陪牌山演最后一幕", value: 2, atm: 1 },
+          { label: "不看最后一张我睡不着，续到底再说", value: 3, atm: 2 }
+        ]
+      },
+      {
+        id: "q31", dim: "HOPE",
+        text: "理性已经提醒你这手大概率没戏了，但你还是会冒出一句“轮也该轮到我了吧”。这种心声对你来说常见吗？",
+        options: [
+          { label: "不常见，我对奇迹的信任比较有限", value: 1 },
+          { label: "偶尔会冒出来，但我不一定真听它的", value: 2 },
+          { label: "常见，而且很多时候我愿意陪它一起赌下去", value: 3 }
+        ]
+      },
+      {
+        id: "q33", dim: "DEF",
+        text: "别人已经明显快和了，你这手还能勉强往前挪，但真和出来也只是点小钱。你通常会？",
+        options: [
+          { label: "这种牌不值，我先下车", value: 1 },
+          { label: "有现物我就撤，没有也优先找最不容易出事的路", value: 1 },
+          { label: "我会给自己留一口混过去的空间，但不会太贪", value: 2 },
+          { label: "小牌也是牌，先顶再说", value: 3 }
+        ]
+      },
+      {
+        id: "q37", dim: "DEF",
+        text: "你很早就看出这手继续打下去大概不划算，桌上也开始有危险味道。你通常会？",
+        options: [
+          { label: "直接切到保命模式，别让自己死得太冤", value: 3 },
+          { label: "先把自己从悬崖边往回拖一格，再看能不能体面退场", value: 2 },
+          { label: "再混一巡看看，说不定桌上有人比我先炸", value: 1 },
+          { label: "没到脸上就不算危险，我先继续推", value: 1 }
+        ]
+      },
+      {
+        id: "q38", dim: "CALC",
+        text: "南四局你是二位，离一位差 3900，后面三位也咬得很紧。现在能稳稳收 1000；另一条路线如果要冲逆转，不但得摸到关键牌，后面还可能要打出危险张。你更像？",
+        options: [
+          { label: "先把二位保住，别为了冲一位把自己打回去", value: 1 },
+          { label: "我会先把这局目标定死：到底是稳保二位，还是这把就要冲一位", value: 2 },
+          { label: "我会把巡目、命中率和顺位波动一起算进来再选线", value: 3 },
+          { label: "3900 都摆眼前了，不赌那张关键牌简直浪费剧情", value: 1 }
+        ]
+      },
+      {
+        id: "q17", special: true,
+        text: "你会不会真的因为座位、风位、摸牌手感不对，就觉得这把牌不适合按常理打？",
+        options: [
+          { label: "基本不会，我还是更信逻辑", value: 1, mystic: 0 },
+          { label: "多少会有点介意，但不至于全听它的", value: 2, mystic: 1 },
+          { label: "会，而且这种感觉一般都挺准", value: 3, mystic: 2, mysticLock: 1 }
+        ]
+      },
+      {
+        id: "q18", special: true,
+        text: "连败到第三把，你更愿意相信下面哪种解释？",
+        options: [
+          { label: "主要还是我自己哪儿打歪了", value: 1, mystic: 0 },
+          { label: "一半技术，一半今天这桌不给面子", value: 2, mystic: 1 },
+          { label: "别分析了，今天磁场就是脏", value: 3, mystic: 2, mysticLock: 1 }
+        ]
+      }
+    ];
+
+    const TYPE_LIBRARY = {
+      "SCI-MJ": {
+        code: "SCI-MJ",
+        cn: "科学麻将家",
+        intro: "谁说科学麻将死路一条！",
+        glyph: "🀜",
+        desc: "你打麻将像在写可复现实验。别人靠手感，你靠证据；别人说差不多，你会说这差很多。你对结构、节奏和信息的执念，已经到了看别人乱切牌会想替对方写检讨的程度。唯一的问题是，牌桌毕竟不是实验室，所以你偶尔也会被纯运气这种不讲武德的东西气到想关机。"
+      },
+      "MAGINOT": {
+        code: "MAGINOT",
+        cn: "马奇诺",
+        intro: "你可以不胡，但别想我放铳。",
+        glyph: "🀆",
+        desc: "你的人生格言是“先活着，再谈梦想”。别人还在研究这手能不能硬冲，你已经在想怎么优雅地下车。你不一定是牌桌上最炸裂的那位，但通常是最难白给的那位。你既有防守派的警觉，也有佛系派的稳定，像一堵修得很厚的墙，顺手还把自己的心率一起守住了。"
+      },
+      "YAKUMAN": {
+        code: "YAKUMAN",
+        cn: "役满梦想家",
+        intro: "小胡解决温饱，大胡改变命运。",
+        glyph: "🀄",
+        desc: "你不是不能小胡，你只是看不上。只要牌里飘出一点大牌味，你的大脑就会自动开始播放史诗 BGM，仿佛这把不做成传说都对不起自己。你能制造牌桌名场面，也能把自己做进牌桌事故集锦。总结一下就是：梦想很大，命有时也挺硬。"
+      },
+      "IRONHEAD": {
+        code: "IRONHEAD",
+        cn: "头铁战神",
+        intro: "都到这了，不冲还是人？",
+        glyph: "🀀",
+        desc: "你最可怕的技能不是算牌，而是敢冲。别人看见危险会后退半步，你看见危险会顺手热个身。你这种人高光很多，翻车也很多，但至少绝不会无聊。要是牌桌能统计节目效果贡献值，你的名字大概早就在榜一挂着了。"
+      },
+      "MINDGAME": {
+        code: "MINDGAME",
+        cn: "心战怪",
+        intro: "你以为他在发呆，其实他在等你先死。",
+        glyph: "🀌",
+        desc: "你在牌桌上最大的武器不是声音，而是观察。你会看节奏、看表情、看副露时点，安静得像没在打，实际上脑子里已经开完三场会。你不急着出手，但一出手通常都很疼。别人打完才反应过来时，你大概已经在心里给这桌写完赛后总结了。"
+      },
+      "VIBE": {
+        code: "VIBE",
+        cn: "牌桌氛围组",
+        intro: "牌可以乱打，场子不能冷掉。",
+        glyph: "🀁",
+        desc: "有你在，牌桌很难冷场。你负责把沉闷局打成综艺局，顺便兼任吐槽役、现场导演和临时解说。别人跟你打牌，输赢先不说，至少不会无聊。唯一的风险是，热闹有时会把你的专注拐跑，让你在讲段子的时候顺手也把自己送走。"
+      },
+      "STERN": {
+        code: "STERN",
+        cn: "统计学圣体",
+        intro: "明年去不去 NYU Stern 读统计博士？",
+        glyph: "🀝",
+        desc: "你不止看这一手牌，你看的是整局收益。分差、巡目、风险、期望，在别人脑子里是四件事，在你脑子里是一张表。你不是最浪漫的那类牌手，但你通常最有全局观。要是哪天你突然说自己明年去 NYU Stern 读统计博士，大家的第一反应多半不是震惊，而是“原来你终于承认了”。"
+      },
+      "BODHI": {
+        code: "BODHI",
+        cn: "菩萨",
+        intro: "输赢随缘，别急别气。",
+        glyph: "🀅",
+        desc: "你很难被一手牌彻底点燃，也很难被一手牌彻底毁灭。别人输一把能气三圈，你已经开始喝水并接受人生无常。你的稳定感很强，强到有时候像是牌桌上唯一一个心率正常的人。缺点也很明显：你太会接受现实了，偶尔连本来该狠狠干一把的局都能被你温柔送走。"
+      },
+      "GAMBLER": {
+        code: "GAMBLER",
+        cn: "赌狗",
+        intro: "再摸一张，包来的。",
+        glyph: "🀡",
+        desc: "你对“下一张就来”这件事有接近宗教级别的信仰。你不是不会算，你只是算完以后还是想再续一巡。希望感是你的燃料，也是你的深坑。别人说及时止损，你说先别急，说不定下一张真就把我洗白了。"
+      },
+      "MIXR": {
+        code: "MIXR",
+        cn: "缝合怪",
+        intro: "你不是一种流派，你是好几种流派轮流上身。",
+        glyph: "🀚",
+        desc: "你在不同局面会切不同人格：有时稳得像老僧入定，有时又冲得像刚跟牌桌结仇。系统本来想给你贴一个明确标签，结果一路算到最后，发现你像把好几种牌风缝在了一起，时而科学，时而发疯，主打一个不好定义。说得直白一点，你不是没有风格，你是风格有点太多了。"
+      },
+      "MYSTIC": {
+        code: "MYSTIC",
+        cn: "玄学大师",
+        intro: "牌效不够，天意来凑。",
+        glyph: "🔮",
+        desc: "你已经进入与牌桌磁场沟通的阶段。座位、风位、手感、气场，这些在你这里都不是借口，而是真变量。别人说随机，你说不对，今天东南角这股气就不吉利。科学可能暂时无法解释你，但这并不影响你继续一本正经地相信自己今天真的有感觉。"
+      },
+      "ATM-er": {
+        code: "ATM-er",
+        cn: "散财童子",
+        intro: "不是你在打麻将，是你在做慈善。",
+        glyph: "🤡",
+        desc: "你有一种非常稀有的天赋：总能在最危险的时候做出最温暖的选择，让对手感受到人间有爱。你不是故意的，但牌桌有时候确实会被你打出一种春节送礼的氛围。先别急着破防，这不是判决书，只是系统在温柔提醒你，下次少上点头，少当一点人形提款机。"
+      }
+    };
+
+    const NORMAL_TYPES = [
+      { code: "SCI-MJ", vector: [3, 2, 2, 1, 2.1, 2.3, 3, 1.8, 1] },
+      { code: "MAGINOT", vector: [1.6, 2.6, 1.2, 1.1, 1.8, 2.4, 2.8, 1, 1.2] },
+      { code: "YAKUMAN", vector: [2, 1, 1.9, 3, 1.4, 1, 1.7, 1, 1.6] },
+      { code: "IRONHEAD", vector: [1.3, 1, 2.55, 1.25, 1.2, 1, 1.45, 1, 2.35] },
+      { code: "MINDGAME", vector: [2, 2, 2, 1, 3, 2, 2.2, 1, 1] },
+      { code: "VIBE", vector: [1, 1.4, 2, 1, 1.7, 1, 2, 3, 2] },
+      { code: "STERN", vector: [3, 2, 2, 1.8, 2.65, 2.9, 3, 2, 1] },
+      { code: "GAMBLER", vector: [1.1, 1.2, 1.8, 1.6, 1.1, 1.1, 1.2, 1.1, 2.8] }
+    ];
+
+    const DIM_EXPLANATIONS = {
+      DEF: {
+        L: "你不太会主动切防守模式，更多是牌打到哪算哪。",
+        M: "你会在危险来临时开始收脚，但不算那种守备洁癖。",
+        H: "你很重视控损，能主动因为风险切换打法。"
+      },
+      EFF: {
+        L: "你更依赖直觉，牌效不是第一优先。",
+        M: "你有牌效意识，但不会为最优解死磕。",
+        H: "你对结构和改良很敏感，常能打得更顺。"
+      },
+      PRESSURE: {
+        L: "你偏谨慎，局势一危险就愿意收手。",
+        M: "你会在稳和冲之间动态切换。",
+        H: "你更愿意顶住压力继续推进。"
+      },
+      AMBITION: {
+        L: "能收就收，不太迷恋更大牌型。",
+        M: "你会算收益，不盲贪也不盲收。",
+        H: "你对上限有追求，愿意为更大价值多走一步。"
+      },
+      READ: {
+        L: "你主要打自己的牌，对外部信息利用较少。",
+        M: "你会看局面，但不总是把它放在核心位置。",
+        H: "你很会读场，经常用信息修正决策。"
+      },
+      CALC: {
+        L: "你更看当下手顺，不太会把整局收益一起算进去。",
+        M: "你会算分差和巡目，但不是每手都开表格。",
+        H: "你很会做全局权衡，分差、收益和巡目会一起进脑子。"
+      },
+      TILT: {
+        L: "情绪容易进牌局，上一手会影响下一手。",
+        M: "会受影响，但多数时候还能控住。",
+        H: "你的情绪恢复快，不容易持续上头。"
+      },
+      VIBE: {
+        L: "你在桌上更安静，偏低存在感。",
+        M: "你的社交参与度适中，能聊也能专注。",
+        H: "你有明显气氛属性，存在感很强。"
+      },
+      HOPE: {
+        L: "你对奇迹比较节制，该收手时通常收得住。",
+        M: "你偶尔会给自己留一点希望，但不会完全交给天意。",
+        H: "你很容易相信“再来一张就翻了”，希望感常常比牌山还满。"
+      }
+    };
+
+    const bonusQuestions = [
+      {
+        id: "b1",
+        scene: "东1局 8巡目 西家 · 宝牌 3筒",
+        hand: ["3m","4m","5m","6m","7m","2p","3p","8p","8p","5s","7s","7s","9s"],
+        draw: "4p",
+        options: ["9s", "7s", "5s", "8p"],
+        correct: "9s"
+      },
+      {
+        id: "b2",
+        scene: "东1局 5巡目 东家 · 宝牌 1索",
+        hand: ["7m","7m","8m","2p","2p","2p","3p","4p","4p","3s","0s","6s","7s"],
+        draw: "2s",
+        options: ["7m", "8m", "3p", "4p"],
+        correct: "4p"
+      },
+      {
+        id: "b3",
+        scene: "东1局 7巡目 西家 · 宝牌 北",
+        hand: ["3m","4m","4m","0m","6m","7m","3p","4p","5p","6p","4s","0s","6s"],
+        draw: "3s",
+        options: ["3m", "4m", "3p", "6s"],
+        correct: "6s"
+      },
+      {
+        id: "b4",
+        scene: "东1局 8巡目 东家 · 宝牌 4万",
+        hand: ["4m","5m","5m","6m","6m","6m","3p","4p","4p","4p","5p","6p","7p"],
+        draw: "7p",
+        options: ["4m", "5m", "3p", "7p"],
+        correct: "7p"
+      },
+      {
+        id: "b5",
+        scene: "东1局 7巡目 东家 · 宝牌 2筒",
+        hand: ["2p","3p","4p","6p","8p","1s","3s","0s","7s","7s","7s","z北","z北"],
+        draw: "z北",
+        options: ["1s", "6p", "8p", "z北"],
+        correct: "8p"
+      },
+      {
+        id: "b6",
+        scene: "东1局 7巡目 北家 · 宝牌 3筒",
+        hand: ["2m","3m","4m","1p","1p","3p","3p","3p","4p","4p","5p","7s","7s"],
+        draw: "8s",
+        options: ["3p", "4p", "7s", "8s"],
+        correct: "7s"
+      }
+    ];
+
+    const BONUS_TITLES = {
+      perfect: {
+        title: "何切之神",
+        desc: "你把这几道题做得像提前看过牌山。这个称号不只是会做题，而是做得很像在冒犯出题人。"
+      },
+      high: {
+        title: "牌桌院士",
+        desc: "你不是靠蒙混过关的，是真有点牌理底子。就算还没到神仙，也已经到了让人闭嘴的程度。"
+      },
+      low: {
+        title: "慈善赌王",
+        desc: "你不是完全不会，只是偶尔会在关键时刻把希望和分数一起送出去。别慌，至少节目效果还在。"
+      },
+      zero: {
+        title: "人形放铳模拟器",
+        desc: "这几道题你做得很像在认真扮演牌桌反面教材。先别难过，反正也不是没有提升空间，主要是空间有点大。"
+      }
+    };
+
+    const dimensionOrder = ["EFF", "DEF", "PRESSURE", "AMBITION", "READ", "CALC", "TILT", "VIBE", "HOPE"];
+
+    const app = {
+      shuffledQuestions: [],
+      answers: {},
+      bonusAnswers: {},
+      bonusResult: null
+    };
+
+    const screens = {
+      intro: document.getElementById("intro"),
+      test: document.getElementById("test"),
+      result: document.getElementById("result"),
+      bonus: document.getElementById("bonus")
+    };
+
+    const questionList = document.getElementById("questionList");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    const submitBtn = document.getElementById("submitBtn");
+    const testHint = document.getElementById("testHint");
+    const bonusList = document.getElementById("bonusList");
+    const bonusProgressBar = document.getElementById("bonusProgressBar");
+    const bonusProgressText = document.getElementById("bonusProgressText");
+    const submitBonusBtn = document.getElementById("submitBonusBtn");
+    const bonusHint = document.getElementById("bonusHint");
+
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, el]) => {
+        el.classList.toggle("active", key === name);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function tileGlyph(token) {
+      const suitMap = {
+        m: ["🀇","🀈","🀉","🀊","🀋","🀌","🀍","🀎","🀏"],
+        s: ["🀐","🀑","🀒","🀓","🀔","🀕","🀖","🀗","🀘"],
+        p: ["🀙","🀚","🀛","🀜","🀝","🀞","🀟","🀠","🀡"]
+      };
+      if (token.startsWith("z")) {
+        return {
+          glyph: { "z东": "🀀", "z南": "🀁", "z西": "🀂", "z北": "🀃", "z白": "🀆", "z发": "🀅", "z中": "🀄" }[token] || "🀫",
+          red: false
+        };
+      }
+      const suit = token.slice(-1);
+      const rank = token.slice(0, -1);
+      const red = rank === "0";
+      const number = red ? 5 : Number(rank);
+      return {
+        glyph: suitMap[suit][number - 1],
+        red
+      };
+    }
+
+    function renderTile(token, extraClass = "") {
+      const info = tileGlyph(token);
+      return `
+        <div class="mahjong-tile ${extraClass}">
+          <div class="mahjong-face">
+            <div class="mahjong-glyph">${info.glyph}</div>
+            ${info.red ? '<div class="mahjong-red-dot"></div>' : ""}
+          </div>
+        </div>
+      `;
+    }
+
+    const PERSONA_IMAGES = {
+      "SCI-MJ": "assets/personas/sci-mj.jpg",
+      "MAGINOT": "assets/personas/maginot.jpg",
+      "YAKUMAN": "assets/personas/yakuman.jpg",
+      "IRONHEAD": "assets/personas/ironhead.jpg",
+      "MINDGAME": "assets/personas/mindgame.jpg",
+      "VIBE": "assets/personas/vibe.jpg",
+      "STERN": "assets/personas/stern.jpg",
+      "BODHI": "assets/personas/bodhi.jpg",
+      "GAMBLER": "assets/personas/gambler.jpg",
+      "MIXR": "assets/personas/mixr.jpg",
+      "MYSTIC": "assets/personas/mystic.jpg"
+    };
+
+    function renderPersonaArt(code) {
+      if (code === "MIXR") {
+        return `
+          <div class="persona-abstract" aria-label="缝合怪抽象角色卡">
+            <div class="persona-abstract-bits">
+              <span>🀜</span><span>🀏</span><span>🀘</span><span>🀂</span><span>🀇</span>
+              <span>🀡</span><span>🀕</span><span>🀄</span><span>🀋</span><span>🀚</span>
+              <span>🀑</span><span>🀆</span><span>🀍</span><span>🀃</span><span>🀞</span>
+              <span>🀔</span><span>🀉</span><span>🀒</span><span>🀙</span><span>🀅</span>
+            </div>
+            <div class="persona-abstract-core">
+              <div class="persona-abstract-symbol">?</div>
+            </div>
+          </div>
+        `;
+      }
+      const src = PERSONA_IMAGES[code];
+      if (!src) return "";
+      return `<img class="persona-art-img" src="${src}" alt="${code} 人格角色图" />`;
+    }
+
+    function renderPosterArt(types) {
+      if (!types || types.length === 0) return "";
+      if (types.length === 1) return renderPersonaArt(types[0].code);
+      return `<div class="poster-art dual-inner">${types.map(type => renderPersonaArt(type.code)).join("")}</div>`;
+    }
+
+    function renderQuestions() {
+      const visibleQuestions = [...app.shuffledQuestions];
+      questionList.innerHTML = "";
+
+      visibleQuestions.forEach((q, index) => {
+        const card = document.createElement("article");
+        card.className = "question";
+        card.innerHTML = `
+          <div class="question-meta">
+            <div class="badge">第 ${index + 1} 题</div>
+          </div>
+          ${q.scene ? `<div class="bonus-scene">${q.scene}</div>` : ""}
+          ${q.hand ? `
+            <div class="tile-row">
+              ${q.hand.map(tile => renderTile(tile)).join("")}
+              <div class="tile-gap"></div>
+              ${renderTile(q.draw, "draw")}
+            </div>
+          ` : ""}
+          <div class="question-title">${q.text}</div>
+          <div class="options">
+            ${q.options.map((opt, i) => {
+              const code = ["A", "B", "C", "D"][i] || String(i + 1);
+              const checked = app.answers[q.id] === opt.value ? "checked" : "";
+              return `
+                <label class="option">
+                  <input type="radio" name="${q.id}" value="${opt.value}" ${checked} />
+                  <div class="option-code">${code}</div>
+                  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    ${opt.tile ? renderTile(opt.tile) : ""}
+                    ${opt.label ? `<div>${opt.label}</div>` : ""}
+                  </div>
+                </label>
+              `;
+            }).join("")}
+          </div>
+        `;
+        questionList.appendChild(card);
+      });
+
+      questionList.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener("change", (e) => {
+          const { name, value } = e.target;
+          app.answers[name] = Number(value);
+          updateProgress();
+        });
+      });
+
+      updateProgress();
+    }
+
+    function renderBonusQuestions() {
+      bonusList.innerHTML = bonusQuestions.map((q, index) => `
+        <article class="bonus-card">
+          <div class="question-meta">
+            <div class="badge">附加题 ${index + 1}</div>
+            <div>${q.scene}</div>
+          </div>
+          <div class="tile-row">
+            ${q.hand.map(tile => renderTile(tile)).join("")}
+            <div class="tile-gap"></div>
+            ${renderTile(q.draw, "draw")}
+          </div>
+          <div class="bonus-options">
+            ${q.options.map((token, i) => {
+              const code = ["A", "B", "C", "D"][i] || String(i + 1);
+              const checked = app.bonusAnswers[q.id] === token ? "checked" : "";
+              return `
+                <label class="bonus-option">
+                  <input type="radio" name="${q.id}" value="${token}" ${checked} />
+                  <div class="option-code">${code}</div>
+                  ${renderTile(token)}
+                </label>
+              `;
+            }).join("")}
+          </div>
+        </article>
+      `).join("");
+
+      bonusList.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener("change", (e) => {
+          const { name, value } = e.target;
+          app.bonusAnswers[name] = value;
+          updateBonusProgress();
+        });
+      });
+
+      updateBonusProgress();
+    }
+
+    function updateProgress() {
+      const total = app.shuffledQuestions.length;
+      const done = app.shuffledQuestions.filter(q => app.answers[q.id] !== undefined).length;
+      const percent = total ? (done / total) * 100 : 0;
+      progressBar.style.width = `${percent}%`;
+      progressText.textContent = `${done} / ${total}`;
+      const complete = done === total && total > 0;
+      submitBtn.disabled = !complete;
+      testHint.textContent = complete
+        ? "都答完了，系统正在搓麻将版人格判词。"
+        : "先答完再开结果，不然系统只能判你“未听牌”。";
+    }
+
+    function updateBonusProgress() {
+      const total = bonusQuestions.length;
+      const done = bonusQuestions.filter(q => app.bonusAnswers[q.id] !== undefined).length;
+      const percent = total ? (done / total) * 100 : 0;
+      bonusProgressBar.style.width = `${percent}%`;
+      bonusProgressText.textContent = `${done} / ${total}`;
+      const complete = done === total && total > 0;
+      submitBonusBtn.disabled = !complete;
+      bonusHint.textContent = complete
+        ? "摸切做完了，看看你到底是神仙还是在做慈善。"
+        : "先把这几道做完。全对可得隐藏称号：何切之神。";
+    }
+
+    function sumToLevel(score, count) {
+      const avg = score / count;
+      if (avg < 1.75) return "L";
+      if (avg < 2.5) return "M";
+      return "H";
+    }
+
+    function levelNum(level) {
+      return { L: 1, M: 2, H: 3 }[level];
+    }
+
+    function computeResult() {
+      const rawScores = {};
+      const levels = {};
+      const dimCounts = {};
+      const averages = {};
+      let mysticScore = 0;
+      let mysticLockCount = 0;
+      let atmScore = 0;
+      Object.keys(dimensionMeta).forEach(dim => {
+        rawScores[dim] = 0;
+        dimCounts[dim] = 0;
+      });
+
+      questions.forEach(q => {
+        const answerValue = Number(app.answers[q.id] || 0);
+        const selected = q.options.find(opt => opt.value === answerValue);
+        if (selected && selected.mystic) mysticScore += selected.mystic;
+        if (selected && selected.mysticLock) mysticLockCount += selected.mysticLock;
+        if (selected && selected.atm) atmScore += selected.atm;
+        if (!q.special) {
+          rawScores[q.dim] += answerValue;
+          dimCounts[q.dim] += 1;
+        }
+      });
+
+      Object.entries(rawScores).forEach(([dim, score]) => {
+        averages[dim] = dimCounts[dim] ? score / dimCounts[dim] : 0;
+        levels[dim] = sumToLevel(score, dimCounts[dim]);
+      });
+
+      const userVector = dimensionOrder.map(dim => averages[dim]);
+      const ranked = NORMAL_TYPES.map(type => {
+        const vector = type.vector;
+        let distance = 0;
+        let exact = 0;
+        for (let i = 0; i < vector.length; i++) {
+          const diff = Math.abs(userVector[i] - vector[i]);
+          distance += diff;
+          if (diff <= 0.34) exact += 1;
+        }
+        const maxDistance = vector.length * 2;
+        const similarity = Math.max(0, Math.round((1 - distance / maxDistance) * 100));
+        return { ...type, ...TYPE_LIBRARY[type.code], distance, exact, similarity };
+      }).sort((a, b) => {
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        if (b.exact !== a.exact) return b.exact - a.exact;
+        return b.similarity - a.similarity;
+      });
+
+      const bestNormal = ranked[0];
+      const tiedNormal = ranked.filter(item => Math.abs(item.distance - bestNormal.distance) < 0.0001);
+
+      let finalType = bestNormal;
+      let displayTypes = tiedNormal;
+      let modeKicker = "你的主类型";
+      let badge = `整体匹配度 ${bestNormal.similarity}%`;
+      let sub = "系统认为这是你最稳定的牌桌人格。";
+      let special = false;
+
+      if (mysticLockCount >= 3) {
+        finalType = TYPE_LIBRARY["MYSTIC"];
+        displayTypes = [TYPE_LIBRARY["MYSTIC"]];
+        modeKicker = "高优先级锁定";
+        badge = "玄学锁定成功 · 磁场主导局面";
+        sub = "你对运势、手感、风位的信任度明显高于常规玩家。";
+        special = true;
+      } else if (bestNormal.similarity < 40) {
+        finalType = TYPE_LIBRARY["MIXR"];
+        displayTypes = [TYPE_LIBRARY["MIXR"]];
+        modeKicker = "系统折中判断";
+        badge = `最高匹配仅 ${bestNormal.similarity}%`;
+        sub = "你的风格比较混合，单一模板难以完整概括。";
+      } else if (tiedNormal.length > 1) {
+        modeKicker = "并列主类型";
+        badge = `${tiedNormal.length} 种人格并列 ${bestNormal.similarity}%`;
+        sub = `你同时很像 ${tiedNormal.map(item => item.cn).join("、")}，系统决定不硬拆。`;
+      }
+
+      return {
+        rawScores,
+        averages,
+        levels,
+        ranked,
+        finalType,
+        displayTypes,
+        modeKicker,
+        badge,
+        sub,
+        special
+      };
+    }
+
+    function renderDimList(result) {
+      const dimList = document.getElementById("dimList");
+      dimList.innerHTML = dimensionOrder.map(dim => {
+        const level = result.levels[dim];
+        return `
+          <div class="dim-item">
+            <div class="dim-item-top">
+              <div class="dim-item-name">${dimensionMeta[dim].name}</div>
+              <div class="dim-item-score">${level} / ${result.rawScores[dim]}分</div>
+            </div>
+            <p>${DIM_EXPLANATIONS[dim][level]}</p>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderRadarChart(result) {
+      const radarChart = document.getElementById("radarChart");
+      const size = 240;
+      const center = size / 2;
+      const radius = 72;
+      const steps = 3;
+      const startAngle = -Math.PI / 2;
+      const axisLabels = dimensionOrder.map(dim => dimensionMeta[dim].name.replace(/^[A-Z]+\s/, ""));
+      const averages = dimensionOrder.map(dim => {
+        const questionCount = questions.filter(q => q.dim === dim).length;
+        return result.rawScores[dim] / questionCount;
+      });
+
+      const polygonPoints = (scale) => dimensionOrder.map((_, index) => {
+        const angle = startAngle + (Math.PI * 2 * index) / dimensionOrder.length;
+        const x = center + Math.cos(angle) * radius * scale;
+        const y = center + Math.sin(angle) * radius * scale;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(" ");
+
+      const valuePoints = averages.map((value, index) => {
+        const angle = startAngle + (Math.PI * 2 * index) / dimensionOrder.length;
+        const scale = value / 3;
+        const x = center + Math.cos(angle) * radius * scale;
+        const y = center + Math.sin(angle) * radius * scale;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(" ");
+
+      const rings = Array.from({ length: steps }, (_, index) => {
+        const scale = (index + 1) / steps;
+        return `<polygon points="${polygonPoints(scale)}" fill="none" stroke="rgba(47,107,71,0.14)" stroke-width="1" />`;
+      }).join("");
+
+      const axes = dimensionOrder.map((_, index) => {
+        const angle = startAngle + (Math.PI * 2 * index) / dimensionOrder.length;
+        const x = center + Math.cos(angle) * radius;
+        const y = center + Math.sin(angle) * radius;
+        return `<line x1="${center}" y1="${center}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(47,107,71,0.18)" stroke-width="1" />`;
+      }).join("");
+
+      const labels = axisLabels.map((label, index) => {
+        const angle = startAngle + (Math.PI * 2 * index) / dimensionOrder.length;
+        const x = center + Math.cos(angle) * (radius + 18);
+        const y = center + Math.sin(angle) * (radius + 18);
+        return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" fill="#66705f" font-size="12">${label}</text>`;
+      }).join("");
+
+      const points = averages.map((value, index) => {
+        const angle = startAngle + (Math.PI * 2 * index) / dimensionOrder.length;
+        const scale = value / 3;
+        const x = center + Math.cos(angle) * radius * scale;
+        const y = center + Math.sin(angle) * radius * scale;
+        return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="#2f6b47" stroke="#fffdf7" stroke-width="2" />`;
+      }).join("");
+
+      radarChart.innerHTML = `
+        <svg class="radar-svg" viewBox="0 0 ${size} ${size}" aria-label="九维度雷达图">
+          ${rings}
+          ${axes}
+          <polygon points="${valuePoints}" fill="rgba(47,107,71,0.18)" stroke="#2f6b47" stroke-width="2.5" />
+          ${points}
+          ${labels}
+        </svg>
+      `;
+    }
+
+    function renderTopList(result) {
+      const topList = document.getElementById("topList");
+      topList.innerHTML = result.ranked.slice(0, 3).map(item => `
+        <div class="top-item">
+          <div class="top-item-top">
+            <strong>${item.code}（${item.cn}）</strong>
+            <div class="top-score">${item.similarity}%</div>
+          </div>
+          <span>${item.intro}</span>
+        </div>
+      `).join("");
+    }
+
+    function computeBonusResult() {
+      let correct = 0;
+      bonusQuestions.forEach(q => {
+        if (app.bonusAnswers[q.id] === q.correct) correct += 1;
+      });
+      const total = bonusQuestions.length;
+      const accuracy = Math.round((correct / total) * 100);
+      let tier = "low";
+      if (correct === total) tier = "perfect";
+      else if (correct === 0) tier = "zero";
+      else if (correct >= total - 1) tier = "high";
+      const meta = BONUS_TITLES[tier];
+      return { ...meta, key: tier, correct, total, accuracy };
+    }
+
+    function comboLine(mainType, bonusResult) {
+      const flavor = {
+        "SCI-MJ": "你这套理工脑不是空架子，真到了牌桌上也会拿结果说话。",
+        "MAGINOT": "你不只是会防，连基本功也够硬，难怪别人很难从你这儿白拿东西。",
+        "YAKUMAN": "你虽然爱做梦，但至少不是空想派，真轮到判断时也有点真本事。",
+        "IRONHEAD": "你不是只会嘴硬，关键时刻居然还能打出几手像样的牌。",
+        "MINDGAME": "你不只是爱观察，真到落牌的时候也有点把握在手上。",
+        "VIBE": "你不是纯气氛担当，热闹之外，牌也真能打出几分章法。",
+        "STERN": "你不只是爱算，真到了做题和落子的时候也大多算得明白。",
+        "GAMBLER": "你虽然总想再摸一张，但至少不至于把每一张都摸成事故。",
+        "MIXR": "你风格很杂，但手上不算太乱，至少关键题没把自己彻底打穿。",
+        "MYSTIC": "你就算靠感觉活着，偶尔也真的能把那股感觉兑现成正确答案。"
+      };
+      const endings = {
+        perfect: "全对这件事已经不是“有点会打”，而是足够让人怀疑你是不是提前偷看过牌山了。",
+        high: "高分说明你不只是人设立得住，真到摸切判断时也大多数跟得上。",
+        low: "主人格很鲜明，牌理这块还在补课，不过至少已经不是纯靠气势打牌了。",
+        zero: "人格归人格，摸切这块今天确实有点翻车，建议把自信和牌理分开放。"
+      };
+      return `${flavor[mainType.code] || "你的人格味道很足，但真正落到牌上时还得看手上功夫。"}${endings[bonusResult.key]}`;
+    }
+
+    function renderBonusSummary(mainType) {
+      const box = document.getElementById("bonusResultBox");
+      const ctaBox = document.getElementById("bonusCtaBox");
+      if (!app.bonusResult) {
+        box.classList.remove("active");
+        ctaBox.style.display = "block";
+        return;
+      }
+      document.getElementById("bonusTitle").textContent = app.bonusResult.title;
+      document.getElementById("bonusAccuracy").textContent = `牌理命中率 ${app.bonusResult.accuracy}%`;
+      document.getElementById("bonusScore").textContent = `${app.bonusResult.correct} / ${app.bonusResult.total}`;
+      document.getElementById("bonusDesc").textContent = app.bonusResult.desc;
+      document.getElementById("comboDesc").textContent = comboLine(mainType, app.bonusResult);
+      box.classList.add("active");
+      ctaBox.style.display = "none";
+    }
+
+    function renderResult() {
+      const result = computeResult();
+      const type = result.finalType;
+      const displayTypes = result.displayTypes || [type];
+
+      document.getElementById("resultModeKicker").textContent = result.modeKicker;
+      document.getElementById("resultTypeName").textContent = displayTypes.map(item => `${item.code}（${item.cn}）`).join(" / ");
+      document.getElementById("matchBadge").textContent = result.badge;
+      document.getElementById("resultTypeSub").textContent = result.sub;
+      document.getElementById("resultDesc").textContent = displayTypes.length > 1
+        ? displayTypes.map((item, index) => `${index === 0 ? "主面" : `第${index + 1}面`}·${item.cn}：${item.desc}`).join(" ")
+        : type.desc;
+      const posterArt = document.getElementById("posterArt");
+      posterArt.classList.toggle("dual", displayTypes.length > 1);
+      posterArt.innerHTML = displayTypes.length > 1
+        ? displayTypes.map(item => renderPersonaArt(item.code)).join("")
+        : renderPersonaArt(type.code);
+      document.getElementById("posterCaption").textContent = displayTypes.map(item => item.intro).join(" / ");
+      document.getElementById("funNote").textContent = result.special
+        ? "本测试仅供娱乐。特殊判定主要用于玩梗，请勿用于真实牌桌决策。"
+        : "本测试仅供娱乐，别拿它当段位证明或复盘替代。笑一笑，继续精进。";
+
+      renderTopList(result);
+      renderRadarChart(result);
+      renderDimList(result);
+      renderBonusSummary(type);
+      showScreen("result");
+    }
+
+    function startTest() {
+      app.answers = {};
+      app.bonusAnswers = {};
+      app.bonusResult = null;
+      app.shuffledQuestions = shuffle(questions);
+      renderQuestions();
+      showScreen("test");
+    }
+
+    function startBonus() {
+      app.bonusAnswers = {};
+      renderBonusQuestions();
+      showScreen("bonus");
+    }
+
+    function submitBonus() {
+      app.bonusResult = computeBonusResult();
+      renderResult();
+    }
+
+    document.getElementById("startBtn").addEventListener("click", startTest);
+    document.getElementById("backIntroBtn").addEventListener("click", () => showScreen("intro"));
+    document.getElementById("submitBtn").addEventListener("click", renderResult);
+    document.getElementById("restartBtn").addEventListener("click", startTest);
+    document.getElementById("toTopBtn").addEventListener("click", () => showScreen("intro"));
+    document.getElementById("startBonusBtn").addEventListener("click", startBonus);
+    document.getElementById("backResultBtn").addEventListener("click", () => showScreen("result"));
+    document.getElementById("submitBonusBtn").addEventListener("click", submitBonus);
+    document.getElementById("retryBonusBtn").addEventListener("click", startBonus);
+  </script>
+</body>
+</html>
