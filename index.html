@@ -1366,6 +1366,7 @@
     const app = {
       shuffledQuestions: [],
       currentQuestionIndex: 0,
+      sessionId: null,
       answers: {},
       bonusAnswers: {},
       bonusResult: null
@@ -1543,6 +1544,12 @@
           const { name, value } = e.target;
           app.answers[name] = Number(value);
           updateProgress();
+          postJSON("/api/session/answer", {
+            sessionId: app.sessionId,
+            answers: app.answers,
+            currentStep: Math.min((app.currentQuestionIndex || 0) + 1, total),
+            totalQuestions: total
+          }).catch(() => {});
           if (app.currentQuestionIndex < total - 1) {
             window.setTimeout(() => {
               app.currentQuestionIndex += 1;
@@ -1763,7 +1770,7 @@
     }
 
     async function renderResult() {
-      const payload = await postJSON("/api/session/result", { answers: app.answers });
+      const payload = await postJSON("/api/session/result", { sessionId: app.sessionId, answers: app.answers });
       const result = payload.result;
       const type = result.finalType;
       const displayTypes = result.displayTypes || [type];
@@ -1798,6 +1805,13 @@
       app.bonusResult = null;
       app.shuffledQuestions = shuffle(questions);
       app.currentQuestionIndex = 0;
+      app.sessionId = null;
+      try {
+        const payload = await postJSON("/api/session/start", { source: document.referrer || "direct" });
+        app.sessionId = payload.sessionId || null;
+      } catch (error) {
+        console.warn("session start failed", error);
+      }
       renderQuestions();
       showScreen("test");
     }
@@ -1809,7 +1823,7 @@
     }
 
     async function submitBonus() {
-      const payload = await postJSON("/api/bonus/result", { bonusAnswers: app.bonusAnswers });
+      const payload = await postJSON("/api/bonus/result", { sessionId: app.sessionId, bonusAnswers: app.bonusAnswers });
       app.bonusResult = payload.result;
       await renderResult();
     }

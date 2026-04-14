@@ -1,14 +1,6 @@
-function json(data, init = {}) {
-  const headers = new Headers(init.headers || {});
-  headers.set("content-type", "application/json; charset=UTF-8");
+import { json, requireDb } from "../../_lib/db.js";
 
-  return new Response(JSON.stringify(data), {
-    ...init,
-    headers,
-  });
-}
-
-export function onRequest(context) {
+export async function onRequest(context) {
   if (context.request.method !== "POST") {
     return json(
       { error: "method_not_allowed" },
@@ -16,12 +8,37 @@ export function onRequest(context) {
     );
   }
 
-  return json(
-    {
-      error: "not_implemented",
-      message: "试玩版暂未接入单题作答采集。下一阶段会在这里记录题目进度。",
-    },
-    { status: 501 }
-  );
-}
+  try {
+    const db = requireDb(context.env);
+    const body = await context.request.json();
+    const sessionId = body?.sessionId;
+    const answers = body?.answers || {};
+    const currentStep = Number(body?.currentStep || 0);
+    const totalQuestions = Number(body?.totalQuestions || 0);
+    if (!sessionId) {
+      return json({ error: "missing_session_id" }, { status: 400 });
+    }
 
+    await db
+      .prepare(
+        `UPDATE sessions
+         SET updated_at = ?, current_step = ?, total_questions = ?, answers_json = ?
+         WHERE id = ?`
+      )
+      .bind(
+        new Date().toISOString(),
+        currentStep,
+        totalQuestions,
+        JSON.stringify(answers),
+        sessionId
+      )
+      .run();
+
+    return json({ ok: true });
+  } catch (error) {
+    return json(
+      { error: "answer_save_failed", message: String(error?.message || error) },
+      { status: 500 }
+    );
+  }
+}

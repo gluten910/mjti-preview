@@ -1,14 +1,5 @@
-function json(data, init = {}) {
-  const headers = new Headers(init.headers || {});
-  headers.set("content-type", "application/json; charset=UTF-8");
-
-  return new Response(JSON.stringify(data), {
-    ...init,
-    headers,
-  });
-}
-
 import { computeBonusResultFromAnswers } from "../../_lib/mjti-data.js";
+import { json, requireDb } from "../../_lib/db.js";
 
 export async function onRequest(context) {
   if (context.request.method !== "POST") {
@@ -20,8 +11,29 @@ export async function onRequest(context) {
 
   try {
     const body = await context.request.json();
+    const sessionId = body?.sessionId || null;
     const bonusAnswers = body?.bonusAnswers || {};
     const result = computeBonusResultFromAnswers(bonusAnswers);
+    if (sessionId) {
+      const db = requireDb(context.env);
+      await db
+        .prepare(
+          `UPDATE sessions
+           SET updated_at = ?, bonus_answers_json = ?, bonus_title = ?,
+               bonus_accuracy = ?, bonus_correct = ?, bonus_total = ?
+           WHERE id = ?`
+        )
+        .bind(
+          new Date().toISOString(),
+          JSON.stringify(bonusAnswers),
+          result.title,
+          result.accuracy,
+          result.correct,
+          result.total,
+          sessionId
+        )
+        .run();
+    }
     return json({ ok: true, result });
   } catch (error) {
     return json(

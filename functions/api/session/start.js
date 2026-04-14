@@ -1,14 +1,6 @@
-function json(data, init = {}) {
-  const headers = new Headers(init.headers || {});
-  headers.set("content-type", "application/json; charset=UTF-8");
+import { json, getClientMeta, requireDb, sha256Hex } from "../../_lib/db.js";
 
-  return new Response(JSON.stringify(data), {
-    ...init,
-    headers,
-  });
-}
-
-export function onRequest(context) {
+export async function onRequest(context) {
   if (context.request.method !== "POST") {
     return json(
       { error: "method_not_allowed" },
@@ -16,12 +8,29 @@ export function onRequest(context) {
     );
   }
 
-  return json(
-    {
-      error: "not_implemented",
-      message: "试玩版暂未接入正式会话存储。下一阶段会在这里创建匿名 session。",
-    },
-    { status: 501 }
-  );
-}
+  try {
+    const db = requireDb(context.env);
+    const body = await context.request.json().catch(() => ({}));
+    const source = body?.source || "";
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    const meta = getClientMeta(context.request);
+    const ipHash = meta.ip ? await sha256Hex(meta.ip) : null;
 
+    await db
+      .prepare(
+        `INSERT INTO sessions (
+          id, started_at, updated_at, status, current_step, total_questions, source, user_agent, ip_hash, country, colo
+        ) VALUES (?, ?, ?, 'started', 0, ?, ?, ?, ?, ?, ?)`
+      )
+      .bind(id, now, now, 26, source, meta.userAgent, ipHash, meta.country, meta.colo)
+      .run();
+
+    return json({ ok: true, sessionId: id });
+  } catch (error) {
+    return json(
+      { error: "session_start_failed", message: String(error?.message || error) },
+      { status: 500 }
+    );
+  }
+}
