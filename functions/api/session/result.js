@@ -8,7 +8,9 @@ function json(data, init = {}) {
   });
 }
 
-export function onRequest(context) {
+import { computeResultFromAnswers } from "../../_lib/mjti-data.js";
+
+export async function onRequest(context) {
   if (context.request.method !== "POST") {
     return json(
       { error: "method_not_allowed" },
@@ -16,12 +18,19 @@ export function onRequest(context) {
     );
   }
 
-  return json(
-    {
-      error: "not_implemented",
-      message: "试玩版暂未把主人格判定迁到后端。下一阶段会在这里计算主人格并落库。",
-    },
-    { status: 501 }
-  );
+  try {
+    const body = await context.request.json();
+    const answers = body?.answers || {};
+    const result = computeResultFromAnswers(answers);
+    return json({ ok: true, result });
+  } catch (error) {
+    return json(
+      {
+        error: "bad_request",
+        message: "无法解析主测试答案。",
+        detail: String(error?.message || error)
+      },
+      { status: 400 }
+    );
+  }
 }
-

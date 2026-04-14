@@ -8,7 +8,9 @@ function json(data, init = {}) {
   });
 }
 
-export function onRequest(context) {
+import { computeBonusResultFromAnswers } from "../../_lib/mjti-data.js";
+
+export async function onRequest(context) {
   if (context.request.method !== "POST") {
     return json(
       { error: "method_not_allowed" },
@@ -16,11 +18,19 @@ export function onRequest(context) {
     );
   }
 
-  return json(
-    {
-      error: "not_implemented",
-      message: "试玩版暂未把附加题校验迁到后端。下一阶段会在这里校验摸切正确率。",
-    },
-    { status: 501 }
-  );
+  try {
+    const body = await context.request.json();
+    const bonusAnswers = body?.bonusAnswers || {};
+    const result = computeBonusResultFromAnswers(bonusAnswers);
+    return json({ ok: true, result });
+  } catch (error) {
+    return json(
+      {
+        error: "bad_request",
+        message: "无法解析附加题答案。",
+        detail: String(error?.message || error)
+      },
+      { status: 400 }
+    );
+  }
 }
